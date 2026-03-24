@@ -36,8 +36,8 @@ int main(int argc, char* argv[]) {
         {"messages", json::array({
             {{"role", "user"}, {"content", prompt}}
         })},
-        {"tools", json::array(
-            {
+        {"tools", json::array({
+            json::object(
                 "type", "function",
                 "function", {{
                     "name", "Read",
@@ -52,9 +52,8 @@ int main(int argc, char* argv[]) {
                     }},
                     "required", json::array({"file_path"})
                     }}
-                }}
-            }
-        )}
+                }})
+            })}
     };
 
     cpr::Response response = cpr::Post(
