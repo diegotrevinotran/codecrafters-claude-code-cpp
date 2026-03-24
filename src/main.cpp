@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
         {"messages", json::array({
             {{"role", "user"}, {"content", prompt}}
         })},
-        {"tools", [
+        {"tools", json::array(
             {
                 "type": "function",
                 "function": {
@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
                     }
                 }
             }
-        ]}
+        )}
     };
 
     cpr::Response response = cpr::Post(
