@@ -10,7 +10,7 @@ using json = nlohmann::json;
 /**
  * Helper method that executes the Read tool.
  */
-std::string read_tool(string file_path) {
+std::string read_tool(std::string file_path) {
     std::ifstream file(file_path);
     std::string str;
     std::string file_contents;
