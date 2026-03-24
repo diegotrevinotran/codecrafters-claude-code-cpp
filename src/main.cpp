@@ -104,8 +104,8 @@ int main(int argc, char* argv[]) {
         // parse args
         if (tool_name == "Read") {
             // args provided as text => must convert to json, then parse again
-            json args = json::parse(tool_call["function"]["arguments"]);
-            std::string file_path = args["file_path"];
+            json args = json::parse(tool_call["function"]["arguments"].get<std::string>());
+            std::string file_path = args["file_path"].get<std::string>();
             // perform read
             std::cerr << file_path << std::endl;
             std::string output = read_tool(file_path);
