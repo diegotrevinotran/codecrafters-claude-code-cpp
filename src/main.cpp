@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
         {"messages", json::array({
             {{"role", "user"}, {"content", prompt}}
         })},
-        {"tools": [
+        {"tools", [
             {
                 "type": "function",
                 "function": {
