@@ -7,6 +7,18 @@
 
 using json = nlohmann::json;
 
+string read_tool(string file_path) {
+    std::ifstream file("Read.txt");
+    std::string str;
+    std::string file_contents;
+    while (std::getline(file, str))
+    {
+    file_contents += str;
+    file_contents.push_back('\n');
+    } 
+    return file_contents;
+}
+
 int main(int argc, char* argv[]) {
     if (argc < 3 || std::string(argv[1]) != "-p") {
         std::cerr << "Expected first argument to be '-p'" << std::endl;
@@ -76,6 +88,23 @@ int main(int argc, char* argv[]) {
     if (!result.contains("choices") || result["choices"].empty()) {
         std::cerr << "No choices in response" << std::endl;
         return 1;
+    }
+
+    // handle tool calls
+    if (result.contains("tool_calls")) {
+        // extract
+        json tool_call = result["tool_calls"][0];
+        // parse name
+        std::string tool_name = tool_call["function"]["name"];
+        // parse args
+        if (tool_name == "Read") {
+            std::string file_path = tool_call["function"]["arguement"]["file_path"];
+            // perform read
+            std::string output = read_tool(file_path);
+            std::cout << output;
+        }
+        return 0;
+
     }
 
     // You can use print statements as follows for debugging, they'll be visible when running tests.
