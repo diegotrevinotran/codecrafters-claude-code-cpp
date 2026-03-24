@@ -103,6 +103,7 @@ int main(int argc, char* argv[]) {
         if (tool_name == "Read") {
             std::string file_path = tool_call["function"]["arguement"]["file_path"];
             // perform read
+            std::cerr << file_path << std::endl;
             std::string output = read_tool(file_path);
             std::cout << output;
         }
