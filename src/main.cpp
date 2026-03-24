@@ -37,9 +37,9 @@ int main(int argc, char* argv[]) {
             {{"role", "user"}, {"content", prompt}}
         })},
         {"tools", json::array({
-            json::object(
+            json::object({
                 "type", "function",
-                "function", {{
+                "function", {
                     "name", "Read",
                     "description", "Read and return the contents of a file",
                     "parameters", {{
@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
                         "description", "The path to the file to read"
                         }}
                     }},
-                    "required", json::array({"file_path"})
+                    "required", json::array({{"file_path"}})
                     }}
                 }})
             })}
