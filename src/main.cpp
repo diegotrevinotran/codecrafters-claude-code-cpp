@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
+#include <fstream>
 
 #include <cpr/cpr.h>
 #include <nlohmann/json.hpp>
@@ -99,10 +100,12 @@ int main(int argc, char* argv[]) {
         // extract
         json tool_call = msg["tool_calls"][0];
         // parse name
-        std::string tool_name = json::parse(tool_call["function"]["name"]);
+        std::string tool_name = tool_call["function"]["name"];
         // parse args
         if (tool_name == "Read") {
-            std::string file_path = json::parse(tool_call["function"]["argument"]["file_path"]);
+            // args provided as text => must convert to json, then parse again
+            json args = json::parse(tool_call["function"]["arguments"]);
+            std::string file_path = args["file_path"];
             // perform read
             std::cerr << file_path << std::endl;
             std::string output = read_tool(file_path);
