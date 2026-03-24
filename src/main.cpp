@@ -94,14 +94,15 @@ int main(int argc, char* argv[]) {
     }
 
     // handle tool calls
-    if (result.contains("tool_calls")) {
+    json msg = result["choices"][0]["message"];
+    if (msg.contains("tool_calls")) {
         // extract
-        json tool_call = result["tool_calls"][0];
+        json tool_call = msg["tool_calls"][0];
         // parse name
-        std::string tool_name = tool_call["function"]["name"];
+        std::string tool_name = json::parse(tool_call["function"]["name"]);
         // parse args
         if (tool_name == "Read") {
-            std::string file_path = tool_call["function"]["arguement"]["file_path"];
+            std::string file_path = json::parse(tool_call["function"]["argument"]["file_path"]);
             // perform read
             std::cerr << file_path << std::endl;
             std::string output = read_tool(file_path);
