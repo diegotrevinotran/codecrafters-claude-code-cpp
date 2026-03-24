@@ -7,8 +7,11 @@
 
 using json = nlohmann::json;
 
-string read_tool(string file_path) {
-    std::ifstream file("Read.txt");
+/**
+ * Helper method that executes the Read tool.
+ */
+std::string read_tool(string file_path) {
+    std::ifstream file(file_path);
     std::string str;
     std::string file_contents;
     while (std::getline(file, str))
