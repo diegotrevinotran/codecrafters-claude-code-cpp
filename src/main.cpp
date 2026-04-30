@@ -35,7 +35,7 @@ std::string write_tool(std::string file_path, std::string content) {
 std::string command_tool(std::string command) {
     char buffer[128];
     std::string result = "";
-    FILE* pipe = popen(command, "r");
+    FILE* pipe = popen(command.c_str(), "r");
 
     if (!pipe) return "";
     
