@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    std::vector<json> messages = {json::array({
+    json messages = {json::array({
                 {{"role", "user"}, {"content", prompt}}
             })};
 
@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
 
         json result = json::parse(response.text);
 
-        messages.push_back(result);
+        messages.push_back(result["choices"][0]["message"]);
 
         if (!result.contains("choices") || result["choices"].empty()) {
             std::cerr << "No choices in response" << std::endl;
@@ -106,19 +106,22 @@ int main(int argc, char* argv[]) {
             json tool_call = msg["tool_calls"][0];
             // parse name
             std::string tool_name = tool_call["function"]["name"];
+
+            std::string output;
+
             // parse args
             if (tool_name == "Read") {
                 // args provided as text => must convert to json, then parse again
                 json args = json::parse(tool_call["function"]["arguments"].get<std::string>());
                 std::string file_path = args["file_path"].get<std::string>();
                 // perform read
-                std::string output = read_tool(file_path);
+                output = read_tool(file_path);
             }
-            messages.push_back(json::array({
+            messages.push_back({
                 {"role", "tool"},
                 {"tool_call_id", tool_call["id"]},
                 {"content", output}
-            }));
+            });
 
         }
         else {
