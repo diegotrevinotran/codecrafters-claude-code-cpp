@@ -47,12 +47,11 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    std::vector<json> messages;
+    std::vector<json> messages = {json::array({
+                {{"role", "user"}, {"content", prompt}}
+            })};
 
     while (true) {
-        messages.push_back(json::array({
-                {{"role", "user"}, {"content", prompt}}
-            }));
         json request_body = {
             {"model", "anthropic/claude-haiku-4.5"},
             {"messages", messages},
@@ -86,8 +85,6 @@ int main(int argc, char* argv[]) {
             cpr::Body{request_body.dump()}
         );
 
-        messages.push_back(response);
-
         if (response.status_code != 200) {
             std::cerr << "HTTP error: " << response.status_code << std::endl;
             return 1;
@@ -116,10 +113,17 @@ int main(int argc, char* argv[]) {
                 std::string file_path = args["file_path"].get<std::string>();
                 // perform read
                 std::string output = read_tool(file_path);
-                std::cout << output;
             }
-            return 0;
+            messages.push_back(json::array({
+                {"role", "tool"},
+                {"tool_call_id", tool_call["id"]},
+                {"content", output}
+            }));
 
+        }
+        else {
+            std::cout << result["choices"][0]["message"]["content"].get<std::string>();
+            return 0;
         }
     }
     
