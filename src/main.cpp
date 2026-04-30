@@ -102,6 +102,23 @@ int main(int argc, char* argv[]) {
                             }}
                         }}
                     }}
+                },
+                {
+                    {"type", "function"},
+                    {"function", {
+                        {"name", "Bash"},
+                        {"description", "Execute a shell command"},
+                        {"parameters", {
+                            {"type", "object"},
+                            {"required", json::array({"command"})},
+                            {"properties", {
+                                {"command", {
+                                    {"type", "string"},
+                                    {"description", "The command to execute"}
+                                }}
+                            }}
+                        }}
+                    }}
                 }
             })}
         };
