@@ -47,9 +47,9 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    json messages = {json::array({
+    json messages = {
                 {{"role", "user"}, {"content", prompt}}
-            })};
+            };
 
     while (true) {
         json request_body = {
@@ -92,12 +92,12 @@ int main(int argc, char* argv[]) {
 
         json result = json::parse(response.text);
 
-        messages.push_back(result["choices"][0]["message"]);
-
         if (!result.contains("choices") || result["choices"].empty()) {
             std::cerr << "No choices in response" << std::endl;
             return 1;
         }
+
+        messages.push_back(result["choices"][0]["message"]);
 
         // handle tool calls
         json msg = result["choices"][0]["message"];
