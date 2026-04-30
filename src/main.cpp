@@ -43,6 +43,9 @@ std::string command_tool(std::string command) {
         while (fgets(buffer, sizeof buffer, pipe) != NULL) {
             result += buffer;
         }
+    } catch (...) {
+        pclose(pipe);
+        return "";
     }
     pclose(pipe);
     return result;
