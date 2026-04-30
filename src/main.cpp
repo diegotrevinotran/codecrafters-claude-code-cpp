@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
 
     json messages = {
                 {{"role", "user"}, {"content", prompt}}
-            };
+    };
 
     while (true) {
         json request_body = {
@@ -102,16 +102,13 @@ int main(int argc, char* argv[]) {
         // handle tool calls
         json msg = result["choices"][0]["message"];
         if (msg.contains("tool_calls")) {
-            // extract
+            // declare helper vars
             json tool_call = msg["tool_calls"][0];
-            // parse name
             std::string tool_name = tool_call["function"]["name"];
-
             std::string output;
 
-            // parse args
             if (tool_name == "Read") {
-                // args provided as text => must convert to json, then parse again
+                // parse argument string and extract filepath
                 json args = json::parse(tool_call["function"]["arguments"].get<std::string>());
                 std::string file_path = args["file_path"].get<std::string>();
                 // perform read
@@ -132,9 +129,6 @@ int main(int argc, char* argv[]) {
     
     // You can use print statements as follows for debugging, they'll be visible when running tests.
     std::cerr << "Logs from your program will appear here!" << std::endl;
-
-    // TODO: Uncomment the line below to pass the first stage
-    // std::cout << result["choices"][0]["message"]["content"].get<std::string>();
 
     return 0;
 }
