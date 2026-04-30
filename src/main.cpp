@@ -24,7 +24,10 @@ std::string read_tool(std::string file_path) {
 }
 
 std::string write_tool(std::string file_path, std::string content) {
-    // if file exists at path 
+    // open location
+    std::ofstream file(file_path);
+    file << content;
+    return content;
 }
 
 int main(int argc, char* argv[]) {
