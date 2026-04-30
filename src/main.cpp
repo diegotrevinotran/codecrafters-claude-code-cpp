@@ -32,6 +32,22 @@ std::string write_tool(std::string file_path, std::string content) {
     return content;
 }
 
+std::string command_tool(std::string command) {
+    char buffer[128];
+    std::string result = "";
+    FILE* pipe = popen(command, "r");
+
+    if (!pipe) return "";
+    
+    try {
+        while (fgets(buffer, sizeof buffer, pipe) != NULL) {
+            result += buffer;
+        }
+    }
+    pclose(pipe);
+    return result;
+}
+
 int main(int argc, char* argv[]) {
     if (argc < 3 || std::string(argv[1]) != "-p") {
         std::cerr << "Expected first argument to be '-p'" << std::endl;
@@ -167,6 +183,12 @@ int main(int argc, char* argv[]) {
                 std::string content = args["content"].get<std::string>();
                 // perform write
                 output = write_tool(file_path, content);
+            }
+            else if (tool_name == "Bash") {
+                json args = json::parse(tool_call["function"]["arguments"].get<std::string>());
+                std::string cmd = args["command"].get<std::string>();
+                // perform write
+                output = command_tool(cmd);
             }
 
             messages.push_back({
