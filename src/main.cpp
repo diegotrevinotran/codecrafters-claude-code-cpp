@@ -23,6 +23,10 @@ std::string read_tool(std::string file_path) {
     return file_contents;
 }
 
+std::string write_tool(std::string file_path, std::string content) {
+    // if file exists at path 
+}
+
 int main(int argc, char* argv[]) {
     if (argc < 3 || std::string(argv[1]) != "-p") {
         std::cerr << "Expected first argument to be '-p'" << std::endl;
@@ -72,6 +76,27 @@ int main(int argc, char* argv[]) {
                             {"required", json::array({"file_path"})}
                         }}
                     }}
+                },
+                { // Write tool
+                    {"type", "function"},
+                    {"function", {
+                        {"name", "Write"},
+                        {"description", "Write content to a file"},
+                        {"parameters", {
+                            {"type", "object"},
+                            {"required", json::array({"file_path", "content"})},
+                            {"properties", {
+                                {"file_path", {
+                                    {"type", "string"},
+                                    {"description", "The path of the file to write to"}
+                                }},
+                                {"content", {
+                                    {"type", "string"},
+                                    {"description", "The content to write to the file"}
+                                }}
+                            }}
+                        }}
+                    }}
                 }
             })}
         };
@@ -114,6 +139,14 @@ int main(int argc, char* argv[]) {
                 // perform read
                 output = read_tool(file_path);
             }
+            else if (tool_name == "Write") {
+                json args = json::parse(tool_call["function"]["arguments"].get<std::string>());
+                std::string file_path = args["file_path"].get<std::string>();
+                std::string content = args["content"].get<std::string>();
+                // perform write
+                output = write_tool(file_path, content);
+            }
+
             messages.push_back({
                 {"role", "tool"},
                 {"tool_call_id", tool_call["id"]},
