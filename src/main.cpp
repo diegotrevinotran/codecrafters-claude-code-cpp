@@ -47,73 +47,82 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    json request_body = {
-        {"model", "anthropic/claude-haiku-4.5"},
-        {"messages", json::array({
-            {{"role", "user"}, {"content", prompt}}
-        })},
-        {"tools", json::array({
-            { // Read tool
-                {"type", "function"},
-                {"function", {
-                    {"name", "Read"},
-                    {"description", "Read and return the contents of a file"},
-                    {"parameters", {
-                        {"type", "object"},
-                        {"properties", {
-                            {"file_path", {
-                                {"type", "string"},
-                                {"description", "The path to the file to read"}
-                            }}
-                        }},
-                        {"required", json::array({"file_path"})}
+    std::vector<json> messages;
+
+    while (true) {
+        messages.push_back(json::array({
+                {{"role", "user"}, {"content", prompt}}
+            }));
+        json request_body = {
+            {"model", "anthropic/claude-haiku-4.5"},
+            {"messages", messages},
+            {"tools", json::array({
+                { // Read tool
+                    {"type", "function"},
+                    {"function", {
+                        {"name", "Read"},
+                        {"description", "Read and return the contents of a file"},
+                        {"parameters", {
+                            {"type", "object"},
+                            {"properties", {
+                                {"file_path", {
+                                    {"type", "string"},
+                                    {"description", "The path to the file to read"}
+                                }}
+                            }},
+                            {"required", json::array({"file_path"})}
+                        }}
                     }}
-                }}
-            }
-        })}
-    };
+                }
+            })}
+        };
 
-    cpr::Response response = cpr::Post(
-        cpr::Url{base_url + "/chat/completions"},
-        cpr::Header{
-            {"Authorization", "Bearer " + api_key},
-            {"Content-Type", "application/json"}
-        },
-        cpr::Body{request_body.dump()}
-    );
+        cpr::Response response = cpr::Post(
+            cpr::Url{base_url + "/chat/completions"},
+            cpr::Header{
+                {"Authorization", "Bearer " + api_key},
+                {"Content-Type", "application/json"}
+            },
+            cpr::Body{request_body.dump()}
+        );
 
-    if (response.status_code != 200) {
-        std::cerr << "HTTP error: " << response.status_code << std::endl;
-        return 1;
-    }
+        messages.push_back(response);
 
-    json result = json::parse(response.text);
-
-    if (!result.contains("choices") || result["choices"].empty()) {
-        std::cerr << "No choices in response" << std::endl;
-        return 1;
-    }
-
-    // handle tool calls
-    json msg = result["choices"][0]["message"];
-    if (msg.contains("tool_calls")) {
-        // extract
-        json tool_call = msg["tool_calls"][0];
-        // parse name
-        std::string tool_name = tool_call["function"]["name"];
-        // parse args
-        if (tool_name == "Read") {
-            // args provided as text => must convert to json, then parse again
-            json args = json::parse(tool_call["function"]["arguments"].get<std::string>());
-            std::string file_path = args["file_path"].get<std::string>();
-            // perform read
-            std::string output = read_tool(file_path);
-            std::cout << output;
+        if (response.status_code != 200) {
+            std::cerr << "HTTP error: " << response.status_code << std::endl;
+            return 1;
         }
-        return 0;
 
+        json result = json::parse(response.text);
+
+        messages.push_back(result);
+
+        if (!result.contains("choices") || result["choices"].empty()) {
+            std::cerr << "No choices in response" << std::endl;
+            return 1;
+        }
+
+        // handle tool calls
+        json msg = result["choices"][0]["message"];
+        if (msg.contains("tool_calls")) {
+            // extract
+            json tool_call = msg["tool_calls"][0];
+            // parse name
+            std::string tool_name = tool_call["function"]["name"];
+            // parse args
+            if (tool_name == "Read") {
+                // args provided as text => must convert to json, then parse again
+                json args = json::parse(tool_call["function"]["arguments"].get<std::string>());
+                std::string file_path = args["file_path"].get<std::string>();
+                // perform read
+                std::string output = read_tool(file_path);
+                std::cout << output;
+            }
+            return 0;
+
+        }
     }
-
+    
     // You can use print statements as follows for debugging, they'll be visible when running tests.
     std::cerr << "Logs from your program will appear here!" << std::endl;
 
