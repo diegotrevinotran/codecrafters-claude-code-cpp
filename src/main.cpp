@@ -23,8 +23,10 @@ std::string read_tool(std::string file_path) {
     return file_contents;
 }
 
+/**
+ * Helper method that executes the Write tool.
+ */
 std::string write_tool(std::string file_path, std::string content) {
-    // open location
     std::ofstream file(file_path);
     file << content;
     return content;
